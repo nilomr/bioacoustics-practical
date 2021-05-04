@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+/vignette_cache/
+/vignette_files/
+/readings/
+
+.~*
