@@ -32,7 +32,7 @@ There are some demo videos [here](https://www.sonicvisualiser.org/videos.html), 
 
 ## Install R dependencies
 
-Open the `vignette.Rmd` file in RStudio and execute the first code chunk: [Setup]. You can do this by clicking the green 'play' button on the right of the chunk or by pressing `ctrl/cmd+shift+enter` or equivalent. This will install the code libraries required for this practical should you not have them already.
+Open the `vignette.Rmd` file in RStudio and execute the first code chunk below ([Setup]). You can do this by clicking the green 'play' button on the right of the chunk or by pressing `ctrl/cmd+shift+enter`. This will install the code libraries required for this practical should you not have them already. Depending on the speed of your internet connection this might take up to a few minutes.
 
 ------------------------------------------------------------------------
 
