@@ -5,6 +5,8 @@
 
 /vignette_cache/
 /vignette_files/
+/full-vignette_cache/
+/full-vignette_files/
 /readings/
 
 .~*
