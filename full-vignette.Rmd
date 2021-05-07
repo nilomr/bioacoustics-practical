@@ -17,10 +17,12 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, results="hide")
 ```
+***
+![](reports/figures/wren.gif)
 
 > This guide has a number of direct hyperlinks: I recommend that you right-click and open them in new browser tabs.
+> You will need ~ 3gb of free disk space for this activity
 
-> **Note:** I will circulate a complete version of the project folder closer to the day of the session, including code and answers. You should then rename or delete this outdated version.
 
 # Prerequisites
 
@@ -103,11 +105,43 @@ Now, back in Sonic Visualiser,
 ![Spectrogram thresholding](reports/figures/thresholding.gif)
 
 
-## Measuring sound
+# Identifying some widespread UK birds
+
+Navigate to `./data/audio-files` in your project folder, `bioacoustics-practical`.
+
+These are recordings of songs and vocalisations of 15 species of birds. These are selected as species that we should hear in and around Oxford in the next two weeks, but are just identified with file names `1.mp3` to `15.mp3`.
+
+1. Your task is to work out the identity of the 15 species in the recordings & record these in your `bird-ids.csv` list, which can be found in the `./data` folder. Some of you may want to have a go based on your existing knowledge, but even if so, please go to [xeno-canto](https://www.xeno-canto.org/) and search for the species and listen to listed recordings of song to double check.
+
+2. If you’re less sure, please open the `rand-species-names.csv` file which has the (randomised) species names in them. This will give you a list of species to match up with the recordings.
+
+3. Go to [xeno-canto](https://www.xeno-canto.org/) and enter a species names in the search box at the top – in this case you can see there are 113 hits for **Great Ti**namou and 6044 for **Great Tit** – it is the latter that we want!
+
+![](reports/figures/xc-search.png)
+
+4. Entering “Great Tit” returns a new page with a map of the species range and the geographic location of the recording.
+
+5. As there may be geographical variation in songs, zoom in on the UK; you’ll note that the dark blue dots on the UK correspond to the subspecies ‘*newtoni*’ on the key to the right – this is usually accepted as a subspecies endemic to the UK for great tit. Don’t worry if there is no subspecies endemic to the UK.
+
+6. Click on the name of the UK subspecies (in this case *newtoni*) and it will filter the recordings by location to a UK list. Note that these are recordings of songs and calls, and we’re asking you to identify (mostly) songs, and that the recordings are scored on quality (in the “Actions” column from “A” – highest to “E” – lowest).
+
+![](reports/figures/xc.gif)
+We’ve allowed c. 45 minutes for this. If any of you finish much ahead of this, please feel free to explore the functionality of xeno-canto. There are also many recordings of songs and calls on [eBird](https://ebird.org/explore): simply enter the species name that you want. 
+
+**Please note:** 
+
+- The xeno-canto website has had performance problems of late - if it's acting up you can alternatively use the [Macaulay Library](https://www.macaulaylibrary.org/) and [eBird](https://ebird.org/explore).
+- Make sure that you do not modify the layout of the `bird-ids.csv` file beyond entering your guesses in the 'name' column, and that you save it as a .csv when you are done.
+
+
+If you have a lot of time and want quite a tough challenge, try one of the eBird audio quizzes [here](https://ebird.org/quiz/). We’ll use these species to carry out some comparative analysis of song properties in the next section.
+
+
+# Measuring sound
 
 We are now going to explore a real hypothesis concerning the frequencies at which birds produce their vocalisations. In the process, you will learn to manually extract basic information from sound recordings.
 
-**The problem:**
+## The problem
 
 We know that the size of the vibrating structure that produces a sound influences its frequency, so we might expect that **A**, body size, be correlated with **B,** the morphology of the vocal apparatus, which would, in turn, influence **C**, the frequency of a bird's vocalisations. We cannot easily investigate **B** in the course of this activity, but we can test whether **A** and **C** are themselves correlated --- which would provide some support for this idea.
 
@@ -123,7 +157,7 @@ To test this hypothesis --- that body size affects the frequency of vocalisation
 
 <br>
 
-**Extracting time and frequency data from songs using Sonic Visualiser**
+## Extracting time and frequency data from sound files
 
 -   Click on `Layer > Add New Boxes Layer` in a Sonic Visualiser window (right click on the spectrogram or go to the top menu. You can now draw boxes over the elements of interest, and erase any box that you are not happy with.
 
@@ -147,7 +181,7 @@ To test this hypothesis --- that body size affects the frequency of vocalisation
 
 <br>
 
-**Visualising the results using R**
+## Visualising the results using R
 
 Now we will import the data that you have just generated using R, get the mean frequency for each species, and plot our variables of interest --- mean frequency and body mass.
 
@@ -173,6 +207,10 @@ packages = lapply(dependencies, function(y) {
   try(require(y, character.only = T), silent = T)
 })
 
+# Where are you?
+maindir = getwd()
+print(maindir) # you should be in the `bioacoustics-practical` folder
+
 ```
 
 - Now we will import the data that you manually extracted from the audio files.
@@ -188,7 +226,6 @@ freq_list = list()
 for (file in freq_data_files) {
   df = read.csv(file.path(getwd(), "data", "frequency-data", file), header = FALSE)[3:4] # get the min/max ferquency data
   global_mean = mean(rowMeans(df, na.rm = TRUE)) # Get mean for each element and then global mean
-  print(c(file, global_mean))
   freq_list[gsub("\\.csv$", "", file)] = global_mean
 }
 
@@ -208,14 +245,21 @@ ids_df = read.csv(file.path(getwd(), "data", "bird-ids.csv"), header = TRUE) %>%
   mutate(name = str_replace(str_to_sentence(name), "_", " "), file = as.factor(file))
 
 # Now put everything together in a single dataframe
-full_df = cbind(ids_df, body_mass_df) %>% left_join(., freq_df)
+full_df = cbind(ids_df, body_mass_df) %>% left_join(., freq_df) %>% 
+  mutate(across(where(is.numeric), ~ round(., 2)))
 ```
 
--  we can plot our two variables:
+- You can take a look at the final dataset:
 
-```{r split-variables-plot, message = FALSE, out.width="140%", fig.cap="placeholder"}
+```{r table, include=T, results='asis'}
+knitr::kable(full_df)
+```
 
-# Let's put some plot settings into a function so that we can reuse them:
+- Let's now inspect the variables separately:
+
+```{r split-variables-plot, message = FALSE, out.width="140%", fig.cap="Distribution of body mass (left) and mean vocalisarion frequency (right)"}
+
+# Put some plot settings into a function so that we can reuse them:
 bioac_theme = function() {
     theme(
     panel.background =  element_rect(fill = '#f5f5f5', colour = '#f5f5f5'),
@@ -230,7 +274,7 @@ bioac_theme = function() {
   )
 }
 
-# Now plot each variable separately
+# Plot each variable separately
 
 bmass_plot = full_df %>% ggplot(aes(x=body_mass)) + 
   geom_density(fill='#bfbfbf', colour='#bfbfbf') + 
@@ -260,12 +304,11 @@ bmass_plot + freq_plot + plot_annotation(
   ) 
 ```
 
+## Results
 
-> Q: How are these two variables distributed?
+- Finally, take a look at how the variables are related:
 
-- Finally, let's take a look at how the variables are related:
-
-```{r main-plot, message = FALSE, out.width="140%", fig.cap="placeholder"}
+```{r main-plot, message = FALSE, out.width="140%", fig.cap="Relationship bethween mean frequency and body mass in a sample of 15 UK birds"}
 
 # Plot the data
 full_df %>%
@@ -294,7 +337,7 @@ full_df %>%
     fontface = 'italic'
   ) +
   labs(
-    title = 'mean frequency vs body mass\n',
+    title = 'Mean frequency vs body mass\n',
     x = '\nLog body mass (g)',
     y = 'Frequency (Hz)\n'
   ) +
@@ -303,29 +346,65 @@ full_df %>%
 
 ```
 
+Discuss!
+
+![Distribution of peak song frequency across a passerine phylogeny. Source: Mikula et al. 2020](reports/figures/phylogeny.jpg)
+
+**Further reading:**
+
+Mikula, P., Valcu, M., Brumm, H., Bulla, M., Forstmeier, W., Petrusková, T., Kempenaers, B. and Albrecht, T. (2021), A global analysis of song frequency in passerines provides no support for the acoustic adaptation hypothesis but suggests a role for sexual selection. Ecology Letters, 24: 477-486. https://doi.org/10.1111/ele.13662
+
+Ryan, M. J., & Brenowitz, E. A. (1985). The Role of Body Size, Phylogeny, and Ambient Noise in the Evolution of Bird Song. The American Naturalist, 126(1), 87–100. https://doi.org/10.1086/284398
+
+
+# I need a title for the third part
+> With thanks to [Marcelo Araya Salas](https://marceloarayasalas.weebly.com/) (author of the warbleR package)
+
+The files that we downloaded from xeno-canto are in .mp3 format - we need to convert them to .wav, another audio file format, before we can continue.
+
+```{r ingest}
+
+# Let's get some coal tit and great tit recordings from xeno-canto
+
+files_dir = file.path(maindir, "data", "two-species-files") # Path to the directory for this analysis
+xc_codes = read.csv(file.path(files_dir, "xc-codes.csv"), header = FALSE)
 
 
 
-![Distribution of peak song frequency across passerines. Source: Mikula et al. 2020](reports/figures/phylogeny.jpg)
-
-vocaliza
- tions is negatively correlated with body size. The allometric relationship between the frequency
- of vocalizations and body size arises because of
- physical and energetic constraints; animals can
- not efficiently produce sound waves larger than
- the size of their body or their sound-producing
- apparat
-
-vocal physiology can be decoupled from body size
+Phae <- query_xc(qword = 'nr:"410059"', download = FALSE)
 
 
-Departures from a negative allometric relationship between frequency of acoustic signals and body size may then reflect (1) differences in evolutionary history that caused variation in syrinx or vocal tract morphology (phylogenetic constraints) and (2) differences in costs or benefits of producing low‐frequency sounds. Thus, variation in frequency may inform about current or past selection on acoustic signals [from 2020 paper]
 
-## Get sound files
+for (file in wavs) {
+  print(substr(file, 3, 8)
+)
+}
 
-A global analysis of song frequency in passerines provides no support for the acoustic adaptation hypothesis but suggests a role for sexual selection <https://onlinelibrary.wiley.com/doi/10.1111/ele.13662>
+files_dir = file.path(getwd(), "data", "two-species-files") 
+# set this to your working directory - bad practice bur necessary due to a bug in the package we are going to use
+setwd(files_dir)
+mp32wav()
 
-The Role of Body Size, Phylogeny, and Ambient Noise in the Evolution of Bird Song <https://www.journals.uchicago.edu/doi/abs/10.1086/284398>
+checkwavs() # Checks that the newly created wav files can be read
+
+wavs <- list.files(pattern="wav$") # Create a list with all the files that we are going to analyse
+
+# Downsample the songs to gain some speed
+lapply(wavs, function(x) writeWave(downsample(readWave(x), samp.rate = 22050),
+                                  filename = x))
+
+set.seed(1)
+sub <- wavs[sample(1:length(wavs), )]
+
+# Run autodetec() on subset of recordings
+segment_list = auto_detec(bp = c(2, 10), threshold = 4, mindur = 0.05, maxdur = 0.6,
+          ssmooth = 100, wl = 512)
+full_spectrograms(segment_list)
+
+```
+
+
+
 
 # re F0 etc
 
