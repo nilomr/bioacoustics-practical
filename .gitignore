@@ -9,4 +9,8 @@
 /full-vignette_files/
 /readings/
 
+NILO.txt
 .~*
+data/two-species-files/*.mp3
+data/two-species-files/*.wav
+data/two-species-files/*/*.jpeg

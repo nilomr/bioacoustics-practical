@@ -8,7 +8,7 @@ output:
     thumbnails: false
     lightbox: false
     gallery: false
-    code_folding: hide
+    code_folding: show
     use_bookdown: true
 editor_options: 
   chunk_output_type: console
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, results="hide")
 ![](reports/figures/wren.gif)
 
 > This guide has a number of direct hyperlinks: I recommend that you right-click and open them in new browser tabs.
-> You will need ~ 3gb of free disk space for this activity
+> You will need ~ 3gb of free disk space for this activity. I recommend that you close any running software other than Rstudio, as well as any unused browser tabs before you start running code.
 
 
 # Prerequisites
@@ -130,7 +130,7 @@ We’ve allowed c. 45 minutes for this. If any of you finish much ahead of this,
 
 **Please note:** 
 
-- The xeno-canto website has had performance problems of late - if it's acting up you can alternatively use the [Macaulay Library](https://www.macaulaylibrary.org/) and [eBird](https://ebird.org/explore).
+- The xeno-canto website has had some performance problems of late - if it's acting up you can alternatively use the [Macaulay Library](https://www.macaulaylibrary.org/) and [eBird](https://ebird.org/explore).
 - Make sure that you do not modify the layout of the `bird-ids.csv` file beyond entering your guesses in the 'name' column, and that you save it as a .csv when you are done.
 
 
@@ -139,7 +139,7 @@ If you have a lot of time and want quite a tough challenge, try one of the eBird
 
 # Measuring sound
 
-We are now going to explore a real hypothesis concerning the frequencies at which birds produce their vocalisations. In the process, you will learn to manually extract basic information from sound recordings.
+We are now going to explore a real hypothesis concerning the frequencies at which birds produce their vocalisations. In the process, you will learn to extract basic information from sound recordings.
 
 ## The problem
 
@@ -149,17 +149,18 @@ We know that the size of the vibrating structure that produces a sound influence
 
 > Q1: If there is indeed a correlation between the size of a bird and the frequency of its vocalisations, of which sign would you expect it to be?
 
-> Q2: What other factors might lead to differences in frequency across different bird species
+> Q2: What other factors might lead to differences in frequency across different bird species?
 
 <br>
 
-To test this hypothesis --- that body size affects the frequency of vocalisations --- you will need to extract some basic spectral information from these vocalisations:
+To test this hypothesis --- that body size affects the frequency of vocalisations --- you will need to extract some basic spectral information from your dataset.
 
 <br>
 
 ## Extracting time and frequency data from sound files
 
--   Click on `Layer > Add New Boxes Layer` in a Sonic Visualiser window (right click on the spectrogram or go to the top menu. You can now draw boxes over the elements of interest, and erase any box that you are not happy with.
+
+-   Click on `Layer > Add New Boxes Layer` in a Sonic Visualiser window (right click on the spectrogram or on the top menu). You can now draw boxes over the elements of interest, and erase any box that you are not happy with.
 
 ![Example of boxes bounding the discrete elements in a vocalisation](reports/figures/boxes.gif)
 
@@ -169,7 +170,9 @@ To test this hypothesis --- that body size affects the frequency of vocalisation
 
 -   Draw boxes over a representative sample of the acoustic elements present in a recording. Do this for each discrete type of sound that you see, but you do not need to include more than one or two examples per type. Indeed, for swiftness' sake, you *shouldn't*. You do not need to segment more than ~ 10 elements per audio file: a small number will already capture important information.
 
--   Once you are done with a recording, press `ctrl+Y`/`cmd+Y`, or click on `File > Export Annotation Layer`. Give this file a name --- specifically, the number of the file + .csv, for example, `1.csv` --- and save it in the `/data/frequency-data/` folder within this project's folder. Leave the option to include a header unticked.
+-   Once you are done with a recording, press `ctrl+Y`/`cmd+Y`, or click on `File > Export Annotation Layer`.
+
+- Give this file a name --- exactly the number of the file + .csv, for example, `1.csv` --- and save it in the `/data/frequency-data/` folder within the project's folder. Leave the option to include a header unticked.
 
 - You can now close the current file (no need to save the session) and open the next one.
 
@@ -183,9 +186,9 @@ To test this hypothesis --- that body size affects the frequency of vocalisation
 
 ## Visualising the results using R
 
-Now we will import the data that you have just generated using R, get the mean frequency for each species, and plot our variables of interest --- mean frequency and body mass.
+Now we will import the data that you have just generated using R, get the mean frequency for each species, and plot our variables of interest: mean frequency and body mass.
 
-- Open the R project in Rstudio. This is the `bioacoustics-practical.Rproj` file. Once you are in Rstudio, open the `full-vignette.Rmd` and navigate to this section. If you press `Ctrl/Cmd+Shift+O` while the Rstudio window is active you will get an outline of the document, which might help you find your way more easily.
+- Open the R project in Rstudio (this is the `bioacoustics-practical.Rproj` file). Once in Rstudio, open the `full-vignette.Rmd` and navigate to this section. If you press `Ctrl/Cmd+Shift+O` while the Rstudio window is active you will get an outline of the document, which might help you find your way more easily.
 
 - First, the following code chunk will install the code libraries required for this practical, should you not have them already:
 
@@ -197,7 +200,8 @@ dependencies = c(
     "magrittr",
     "stringr",
     "ggrepel",
-    "patchwork"
+    "patchwork",
+    "filesstrings"
   )
 # Load or install packages 
 packages = lapply(dependencies, function(y) {
@@ -210,6 +214,12 @@ packages = lapply(dependencies, function(y) {
 # Where are you?
 maindir = getwd()
 print(maindir) # you should be in the `bioacoustics-practical` folder
+# Go back to the root folder if needed
+if (basename(maindir) == 'two-species-files'){
+  setwd(dirname(dirname(maindir)))
+  maindir = getwd()
+}
+ 
 
 ```
 
@@ -252,12 +262,12 @@ full_df = cbind(ids_df, body_mass_df) %>% left_join(., freq_df) %>%
 - You can take a look at the final dataset:
 
 ```{r table, include=T, results='asis'}
-knitr::kable(full_df)
+knitr::kable(full_df, digits=2)
 ```
 
 - Let's now inspect the variables separately:
 
-```{r split-variables-plot, message = FALSE, out.width="140%", fig.cap="Distribution of body mass (left) and mean vocalisarion frequency (right)"}
+```{r split-variables-plot, message = FALSE, out.width="140%"}
 
 # Put some plot settings into a function so that we can reuse them:
 bioac_theme = function() {
@@ -308,7 +318,7 @@ bmass_plot + freq_plot + plot_annotation(
 
 - Finally, take a look at how the variables are related:
 
-```{r main-plot, message = FALSE, out.width="140%", fig.cap="Relationship bethween mean frequency and body mass in a sample of 15 UK birds"}
+```{r main-plot, message = FALSE, out.width="140%"}
 
 # Plot the data
 full_df %>%
@@ -357,55 +367,261 @@ Mikula, P., Valcu, M., Brumm, H., Bulla, M., Forstmeier, W., Petrusková, T., Ke
 Ryan, M. J., & Brenowitz, E. A. (1985). The Role of Body Size, Phylogeny, and Ambient Noise in the Evolution of Bird Song. The American Naturalist, 126(1), 87–100. https://doi.org/10.1086/284398
 
 
-# I need a title for the third part
+# Automated bird song analysis
+
 > With thanks to [Marcelo Araya Salas](https://marceloarayasalas.weebly.com/) (author of the warbleR package)
 
-The files that we downloaded from xeno-canto are in .mp3 format - we need to convert them to .wav, another audio file format, before we can continue.
+<br>
 
-```{r ingest}
+While taking manual measurements is a perfectly valid option when dealing with small datasets and simple variables, most problems in ecology and animal behaviour call for more complex descriptions of sound, and involve datasets that are too large to be processed manually. Automated analyses are very useful but can be hard to implement, and are not free from many of the biases that plague manual characterisation of sound. For the third part of today's session we will be exploring a simple case: a comparative analysis of the songs of two related species that are very common in the UK.
 
-# Let's get some coal tit and great tit recordings from xeno-canto
-
-files_dir = file.path(maindir, "data", "two-species-files") # Path to the directory for this analysis
-xc_codes = read.csv(file.path(files_dir, "xc-codes.csv"), header = FALSE)
+Both Great tits and Coal tits have relatively simple songs, most frequently made up of two alternating notes, that are often described to as a ‘tea-cher, tea-cher’ sound. Although Coal tits are smaller than Great tits their songs have largely overlapping frequency ranges, and they can be confused by the untrained ear.
 
 
+![Coal tit (left) and Great tit (right). Images by Aviceda and Sue Cro, respectively. Under CC BY-SA 2.0 licence.](reports/figures/tits.jpg)
 
-Phae <- query_xc(qword = 'nr:"410059"', download = FALSE)
+Let's get to work!
 
+First we need some data: we are going to get a sample of Coal and Great tit recordings from xeno-canto.
+You can read the comments in the code blocks to know what we are doing at each step - don't worry if you don't understand what every bit of code is doing!
 
+```{r ingest, message = FALSE}
 
-for (file in wavs) {
-  print(substr(file, 3, 8)
-)
-}
+# Path to the directory for this analysis
+files_dir = file.path(maindir, "data", "two-species-files")
 
-files_dir = file.path(getwd(), "data", "two-species-files") 
-# set this to your working directory - bad practice bur necessary due to a bug in the package we are going to use
+# let's make use of a few more of your computer's cores to speed things up a bit:
+ncores = parallel::detectCores() - 2
+
+# Set this to your working directory
+# NOTE : changing working directories like this is a bad programming 
+# practice, but necessary here due to a bug in the package that we are going to use
 setwd(files_dir)
-mp32wav()
 
-checkwavs() # Checks that the newly created wav files can be read
+# I have pre-selected some songs for you - import a vector of their codes and download them
+xc_codes = as.vector(unlist(read.csv(file.path(files_dir, "xc-codes.csv"), header = FALSE)[1])) 
+lapply(xc_codes, function(code)
+  xcquery = query_xc(
+    qword = stringr::str_interp('nr:"${code}"'),
+    download = TRUE,
+    parallel = ncores
+  ))
 
-wavs <- list.files(pattern="wav$") # Create a list with all the files that we are going to analyse
+# Now we have to convert the .mp3 files to .wav, another commonly used audio file format.
+# + check that the newly created wav files can be read
+# + create a list with all the files that we are going to analyse
+
+try(mp32wav()); checkwavs()
+wavs <- list.files(pattern="wav$") 
 
 # Downsample the songs to gain some speed
-lapply(wavs, function(x) writeWave(downsample(readWave(x), samp.rate = 22050),
-                                  filename = x))
-
-set.seed(1)
-sub <- wavs[sample(1:length(wavs), )]
-
-# Run autodetec() on subset of recordings
-segment_list = auto_detec(bp = c(2, 10), threshold = 4, mindur = 0.05, maxdur = 0.6,
-          ssmooth = 100, wl = 512)
-full_spectrograms(segment_list)
+lapply(wavs, function(x)
+  writeWave(downsample(readWave(x), samp.rate = 22050),
+            filename = x))
 
 ```
 
+Now you can go to `./data/two-species-files`, the directory for this part of the session, and inspect some of the files in Sonic Visualiser. I find that the songs of these two birds look more different than they sound - what do you think?
+
+The basic unit in these songs is a note, which we can define as a sound represented by a continuous trace on the spectrogram, often separated by pauses. We can take advantage of this to try to detect each individual note in our dataset automatically. I have chosen particularly clean audio recordings (i.e. the signal-to-noise ratio is high) and set the parameters of the algorithm for you, so your segmentation should be fairly accurate. In reality, automatic segmentation of sound is a *really* hard problem!
+
+```{r segment, message = FALSE}
+
+# We are now going to run a simple algorithm that segments sounds based on their amplitude.
+# It will not work perfectly, but is good enough four our purposes here
+element_list = auto_detec(
+  path = files_dir, 
+  bp = c(2, 9),
+  threshold = 4,
+  mindur = 0.04,
+  maxdur = 0.4,
+  ssmooth = 200,
+  wl = 512,
+  parallel = ncores
+)
+
+# Let's export the segmented spectrograms and take a look at them:
+full_spectrograms(element_list, parallel = ncores, suffix = 'seg', path = files_dir)
+
+# Move the element spectrograms to a new folder
+seg_dir = "segmentation-spectrograms"
+if (!(file.exists(seg_dir))) {
+  dir.create("segmentation-spectrograms")
+}
+lapply(list.files(pattern = "*-seg-p*"), function(file)
+  file.move(file, seg_dir, overwrite = TRUE))
+
+# If you are happy with that, save the selections to a .csv
+write.csv(element_list, "song-segmentation.csv", row.names = FALSE)
+
+```
+
+If you go to the `segmentation-spectrograms` folder you can check whether the segmentation algorithm did a good job. You now have start and end time information for `r nrow(element_list)` notes!
 
 
+Now that we have individual notes we can automatically extract some numeric descriptions of their sound. More specifically, we are going to measure 22 spectral parameters [ETC]
 
-# re F0 etc
+```{r spectral-params, message = FALSE}
 
-This is a problem that can be to some extent solved using more complex, automated extraction methods, but it is a very difficult issue. For now, you can add contrast to the spectrogram and select what you think might be the 'frequency'? with highest amplitude (the loudest)
+# Extract some spectral parameters
+spectral_parameters <- specan(element_list, path = files_dir, parallel=ncores, threshold = 15, bp = c(2,9)) %>%
+  mutate(label = str_split(sound.files, "-", simplify = TRUE)[ , 2])
+```
+
+Now PCA
+
+```{r pca, message = FALSE}
+
+# PCA of spectral parameters
+pca <- prcomp(x = spectral_parameters[, sapply(spectral_parameters, is.numeric)], scale. = TRUE)
+pcascor <- as.data.frame(pca[[5]]) %>% tibble::add_column(label = spectral_parameters$label)
+pcascor %>% ggplot(aes(x=PC1, y=PC2, colour=label)) +
+  geom_point(alpha=0.8, shape=16) +
+  scale_colour_manual(values = c('#585955', '#f0b618'), labels = c('Coal tit', 'Great tit')) +
+  bioac_theme() +
+  theme(legend.position = "right", aspect.ratio = 0.6, ) +
+  labs(
+      title = 'Principal component analysis',
+      subtitle= 'based on spectral measurements\n'
+    ) 
+
+```
+
+Some separation but lots of overlap - discuss why, shortcomings, level of description
+
+What makes their songs distinct?
+
+```{r modulation, message = FALSE}
+# Plot measures of modulation
+
+linecolour = adjustcolor("#c4692d", alpha.f = .9)
+dfrange_plot = spectral_parameters %>% ggplot(aes(x = label, y = dfrange)) +
+  geom_jitter(width = 0.2,
+              alpha = 0.2,
+              shape = 16) +
+  stat_summary(
+    fun = median,
+    geom = "crossbar",
+    width = 0.43,
+    size = 1,
+    colour = linecolour
+  ) +
+  bioac_theme() +
+  labs(x = NULL, y = 'Dominant frequency range (kHz)\n') +
+  scale_x_discrete(labels = c('Coal tit', 'Great tit')) +
+  theme(aspect.ratio = 1.3, plot.margin = unit(c(0, 30, 0, 0), "pt"))
+
+kurt_plot = spectral_parameters %>% ggplot(aes(x = label, y = kurt)) +
+  geom_jitter(width = 0.2,
+              alpha = 0.2,
+              shape = 16) +
+  stat_summary(
+    fun = median,
+    geom = "crossbar",
+    width = 0.43,
+    size = 1,
+    colour = linecolour
+  ) +
+  bioac_theme() +
+  labs(x = NULL, y = 'Kurtosis\n') +
+  scale_x_discrete(labels = c('Coal tit', 'Great tit')) +
+  theme(aspect.ratio = 1.3)
+
+dfrange_plot + kurt_plot + plot_annotation(
+  title = 'Measures of frequency modulation\n',
+  caption = '\nHigher kurtosis = more leptokurtic, that is, having a distribution more centered around the mean than a normal distribution',
+  theme = theme(
+    plot.title = element_text(size = 18, hjust = 0.5),
+    plot.caption = element_text(size = 9, hjust = 0.5)
+  )
+)
+```
+
+Temporal characteristics:
+```{r pace, message = FALSE}
+
+# Temporal characteristics
+element_list = element_list %>% mutate(label = spectral_parameters$label, duration = end -
+                          start, silence = c(element_list$start[2:nrow(element_list)], NA) -end ) 
+
+silences_plot = element_list %>% 
+  filter(silence >0 & silence <0.2) %>% 
+  ggplot(aes(x = label, y = silence)) + 
+  geom_jitter(width = 0.2,
+            alpha = 0.2,
+            shape = 16) +
+  stat_summary(
+    fun = median,
+    geom = "crossbar",
+    width = 0.43,
+    size = 1,
+    colour = linecolour
+  ) +
+  bioac_theme() +
+  labs(x = NULL, y = 'Silence duration (s)\n') +
+  scale_x_discrete(labels = c('Coal tit', 'Great tit')) +
+  theme(aspect.ratio = 1.3, plot.margin = unit(c(0, 30, 0, 0), "pt"))
+
+durations_plot = element_list %>%
+  ggplot(aes(x = label, y = duration)) + 
+  geom_jitter(width = 0.2,
+            alpha = 0.2,
+            shape = 16) +
+  stat_summary(
+    fun = median,
+    geom = "crossbar",
+    width = 0.43,
+    size = 1,
+    colour = linecolour
+  ) +
+  bioac_theme() +
+  labs(x = NULL, y = 'Note duration (s)\n') +
+  scale_x_discrete(labels = c('Coal tit', 'Great tit')) +
+  theme(aspect.ratio = 1.3)
+
+
+silences_plot + durations_plot + plot_annotation(
+  title = 'A quick look at silence and note duration\n',
+  theme = theme(
+    plot.title = element_text(size = 18, hjust = 0.5),
+    plot.caption = element_text(size = 9, hjust = 0.5)
+  )
+)
+
+# setwd(maindir)
+```
+
+
+Extra code to go further - uncomment to use
+
+```{rn extra, message=FALSE}
+
+# #Extract the dominant frequency of each element, or note
+# dominant_frequencies <-
+#   freq_ts(
+#     path = files_dir,
+#     element_list,
+#     wl = 512,
+#     length.out = 20,
+#     threshold = 15,
+#     img = TRUE,
+#     parallel = ncores,
+#     img.suffix = "dom_freq",
+#     ovlp = 95,
+#     clip.edges = FALSE,
+#     leglab = "ffts",
+#     fsmooth = 0.2
+#   )
+# # Move the element spectrograms to a new folder
+# dom_freq_dir = "dominant-freq-spectrograms"
+# if (!(file.exists(dom_freq_dir))) {
+#   dir.create("segmentation-spectrograms")
+# }
+# lapply(list.files(pattern = "dom_freq$"), function(file)
+#   file.move(file, dom_freq_dir, overwrite = TRUE))
+# # You can now go to this folder using a file explorer and take a look at some of them
+
+
+```
+
+***
