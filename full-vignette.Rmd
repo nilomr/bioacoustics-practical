@@ -1,7 +1,7 @@
 ---
 title: "Introduction to acoustic analysis"
-author: "Prepared by Nilo M. Recalde"
-date: "02/05/2021"
+author: "Prepared by Nilo M. Recalde<br>and Ben Sheldon"
+date: "09/05/2021"
 output:
   rmdformats::robobook:
     self_contained: true
@@ -15,13 +15,15 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, results="hide")
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, results="hide", fig.keep='none')
 ```
-***
+
+------------------------------------------------------------------------
+
 ![](reports/figures/wren.gif)
 
-> This guide has a number of direct hyperlinks: I recommend that you right-click and open them in new browser tabs.
-> You will need ~ 3gb of free disk space for this activity. I recommend that you close any running software other than Rstudio, as well as any unused browser tabs before you start running code.
+> This guide has a number of direct hyperlinks: I recommend that you right-click and open them in new browser tabs. <br>
+You will need \~ 3gb of free disk space for this activity. I recommend that you close any running software other than Rstudio, as well as any unused browser tabs, before you start running code.<br>
 
 
 # Prerequisites
@@ -45,7 +47,9 @@ dependencies = c(
     "dplyr",
     "magrittr",
     "stringr",
-    "ggrepel"
+    "ggrepel",
+    "patchwork",
+    "filesstrings"
   )
 # Load or install packages 
 packages = lapply(dependencies, function(y) {
@@ -104,38 +108,34 @@ Now, back in Sonic Visualiser,
 
 ![Spectrogram thresholding](reports/figures/thresholding.gif)
 
-
 # Identifying some widespread UK birds
 
 Navigate to `./data/audio-files` in your project folder, `bioacoustics-practical`.
 
 These are recordings of songs and vocalisations of 15 species of birds. These are selected as species that we should hear in and around Oxford in the next two weeks, but are just identified with file names `1.mp3` to `15.mp3`.
 
-1. Your task is to work out the identity of the 15 species in the recordings & record these in your `bird-ids.csv` list, which can be found in the `./data` folder. Some of you may want to have a go based on your existing knowledge, but even if so, please go to [xeno-canto](https://www.xeno-canto.org/) and search for the species and listen to listed recordings of song to double check.
+1.  Your task is to work out the identity of the 15 species in the recordings & record these in your `bird-ids.csv` list, which can be found in the `./data` folder. Some of you may want to have a go based on your existing knowledge, but even if so, please go to [xeno-canto](https://www.xeno-canto.org/) and search for the species and listen to listed recordings of song to double check.
 
-2. If you’re less sure, please open the `rand-species-names.csv` file which has the (randomised) species names in them. This will give you a list of species to match up with the recordings.
+2.  If you're less sure, please open the `rand-species-names.csv` file which has the (randomised) species names in them. This will give you a list of species to match up with the recordings.
 
-3. Go to [xeno-canto](https://www.xeno-canto.org/) and enter a species names in the search box at the top – in this case you can see there are 113 hits for **Great Ti**namou and 6044 for **Great Tit** – it is the latter that we want!
+3.  Go to [xeno-canto](https://www.xeno-canto.org/) and enter a species names in the search box at the top -- in this case you can see there are 113 hits for **Great Ti**namou and 6044 for **Great Tit** -- it is the latter that we want!
 
 ![](reports/figures/xc-search.png)
 
-4. Entering “Great Tit” returns a new page with a map of the species range and the geographic location of the recording.
+4.  Entering "Great Tit" returns a new page with a map of the species range and the geographic location of the recording.
 
-5. As there may be geographical variation in songs, zoom in on the UK; you’ll note that the dark blue dots on the UK correspond to the subspecies ‘*newtoni*’ on the key to the right – this is usually accepted as a subspecies endemic to the UK for great tit. Don’t worry if there is no subspecies endemic to the UK.
+5.  As there may be geographical variation in songs, zoom in on the UK; you'll note that the dark blue dots on the UK correspond to the subspecies '*newtoni*' on the key to the right -- this is usually accepted as a subspecies endemic to the UK for great tit. Don't worry if there is no subspecies endemic to the UK.
 
-6. Click on the name of the UK subspecies (in this case *newtoni*) and it will filter the recordings by location to a UK list. Note that these are recordings of songs and calls, and we’re asking you to identify (mostly) songs, and that the recordings are scored on quality (in the “Actions” column from “A” – highest to “E” – lowest).
+6.  Click on the name of the UK subspecies (in this case *newtoni*) and it will filter the recordings by location to a UK list. Note that these are recordings of songs and calls, and we're asking you to identify (mostly) songs, and that the recordings are scored on quality (in the "Actions" column from "A" -- highest to "E" -- lowest).
 
-![](reports/figures/xc.gif)
-We’ve allowed c. 45 minutes for this. If any of you finish much ahead of this, please feel free to explore the functionality of xeno-canto. There are also many recordings of songs and calls on [eBird](https://ebird.org/explore): simply enter the species name that you want. 
+![](reports/figures/xc.gif) We've allowed c. 45 minutes for this. If any of you finish much ahead of this, please feel free to explore the functionality of xeno-canto. There are also many recordings of songs and calls on [eBird](https://ebird.org/explore): simply enter the species name that you want.
 
-**Please note:** 
+**Please note:**
 
-- The xeno-canto website has had some performance problems of late - if it's acting up you can alternatively use the [Macaulay Library](https://www.macaulaylibrary.org/) and [eBird](https://ebird.org/explore).
-- Make sure that you do not modify the layout of the `bird-ids.csv` file beyond entering your guesses in the 'name' column, and that you save it as a .csv when you are done.
+-   The xeno-canto website has had some performance problems of late - if it's acting up you can alternatively use the [Macaulay Library](https://www.macaulaylibrary.org/) and [eBird](https://ebird.org/explore).
+-   Make sure that you do not modify the layout of the `bird-ids.csv` file beyond entering your guesses in the 'name' column, and that you save it as a .csv when you are done.
 
-
-If you have a lot of time and want quite a tough challenge, try one of the eBird audio quizzes [here](https://ebird.org/quiz/). We’ll use these species to carry out some comparative analysis of song properties in the next section.
-
+If you have a lot of time and want quite a tough challenge, try one of the eBird audio quizzes [here](https://ebird.org/quiz/). We'll use these species to carry out some comparative analysis of song properties in the next section.
 
 # Measuring sound
 
@@ -147,34 +147,33 @@ We know that the size of the vibrating structure that produces a sound influence
 
 <br>
 
-> Q1: If there is indeed a correlation between the size of a bird and the frequency of its vocalisations, of which sign would you expect it to be?
+> **Q**: If there is indeed a correlation between the size of a bird and the frequency of its vocalisations, of which sign would you expect it to be?
 
-> Q2: What other factors might lead to differences in frequency across different bird species?
+> **Q**: What other factors might lead to differences in frequency across different bird species?
 
 <br>
 
-To test this hypothesis --- that body size affects the frequency of vocalisations --- you will need to extract some basic spectral information from your dataset.
+To test this hypothesis --- that body size affects the frequency of vocalisations --- you will need to extract some basic spectral information from your dataset. We will then provide you with body mass measurements for each of the species.
 
 <br>
 
 ## Extracting time and frequency data from sound files
 
-
 -   Click on `Layer > Add New Boxes Layer` in a Sonic Visualiser window (right click on the spectrogram or on the top menu). You can now draw boxes over the elements of interest, and erase any box that you are not happy with.
 
 ![Example of boxes bounding the discrete elements in a vocalisation](reports/figures/boxes.gif)
 
--   Adjust the colour threshold (as explained above) until only the brightest parts of the image are visible. This will help you focus on the frequencies with the highest amplitude, or peak frequencies, which is the song trait that we will analyse here.
+-   Adjust the colour threshold (as explained above) until only the brightest parts of the image are visible. This will help you focus on the frequencies with the maximum energy, or peak frequencies, which is the song trait that we will analyse here. Peak frequencies are the 'loudest', and will therefore be the brightest in the spectrogram
 
 ![This is the range where the peak frequencies are in this vocalisation](reports/figures/peak-freq.jpg)
 
--   Draw boxes over a representative sample of the acoustic elements present in a recording. Do this for each discrete type of sound that you see, but you do not need to include more than one or two examples per type. Indeed, for swiftness' sake, you *shouldn't*. You do not need to segment more than ~ 10 elements per audio file: a small number will already capture important information.
+-   Draw boxes over a representative sample of the acoustic elements present in a recording. Do this for each discrete type of sound that you see, but you do not need to include more than one or two examples per type. Indeed, for swiftness' sake, you *shouldn't*. You do not need to segment more than \~ 10 elements per audio file: a small number will already capture important information.
 
 -   Once you are done with a recording, press `ctrl+Y`/`cmd+Y`, or click on `File > Export Annotation Layer`.
 
-- Give this file a name --- exactly the number of the file + .csv, for example, `1.csv` --- and save it in the `/data/frequency-data/` folder within the project's folder. Leave the option to include a header unticked.
+-   Give this file a name --- exactly the number of the file + .csv, for example, `1.csv` --- and save it in the `/data/frequency-data/` folder within the project's folder. Leave the option to include a header unticked.
 
-- You can now close the current file (no need to save the session) and open the next one.
+-   You can now close the current file (no need to save the session) and open the next one.
 
 <br>
 
@@ -188,9 +187,11 @@ To test this hypothesis --- that body size affects the frequency of vocalisation
 
 Now we will import the data that you have just generated using R, get the mean frequency for each species, and plot our variables of interest: mean frequency and body mass.
 
-- Open the R project in Rstudio (this is the `bioacoustics-practical.Rproj` file). Once in Rstudio, open the `full-vignette.Rmd` and navigate to this section. If you press `Ctrl/Cmd+Shift+O` while the Rstudio window is active you will get an outline of the document, which might help you find your way more easily.
+Open the R project in Rstudio (this is the `bioacoustics-practical.Rproj` file). Once in Rstudio, open the `full-vignette.Rmd` and navigate to this section. 
 
-- First, the following code chunk will install the code libraries required for this practical, should you not have them already:
+If you press `Ctrl/Cmd+Shift+O` while the Rstudio window is active you will get an outline of the document, which might help you find your way around more easily. If you have RStudio v1.4 or higher you can also activate the 'visual markdown' mode --- which will make your .Rmd file look more like the .html that you were using up until now --- by clicking the pair of compasses button at the top-right of the document toolbar.
+
+First, the following code chunk will install the code libraries required for this practical, should you not have them already:
 
 ```{r dependencies-2, message = FALSE}
 
@@ -219,11 +220,9 @@ if (basename(maindir) == 'two-species-files'){
   setwd(dirname(dirname(maindir)))
   maindir = getwd()
 }
- 
-
 ```
 
-- Now we will import the data that you manually extracted from the audio files.
+Now we will import the data that you manually extracted from the audio files.
 
 ```{r read-frequencies, message = FALSE}
 
@@ -244,7 +243,7 @@ freq_df = stack(freq_list) %>% # make a dataframe with the frequency and ID info
 
 ```
 
-- The next step is to read the body mass data and your species guesses.
+The next step is to read the body mass data and your species guesses form their respective files.
 
 ```{r read-body-mass, message = FALSE}
 
@@ -259,13 +258,15 @@ full_df = cbind(ids_df, body_mass_df) %>% left_join(., freq_df) %>%
   mutate(across(where(is.numeric), ~ round(., 2)))
 ```
 
-- You can take a look at the final dataset:
+## Results
 
-```{r table, include=T, results='asis'}
+You can take a look at the final dataset:
+
+```{r table, include=T, results='hide'}
 knitr::kable(full_df, digits=2)
 ```
 
-- Let's now inspect the variables separately:
+Let's now inspect the variables separately:
 
 ```{r split-variables-plot, message = FALSE, out.width="140%"}
 
@@ -314,11 +315,13 @@ bmass_plot + freq_plot + plot_annotation(
   ) 
 ```
 
-## Results
-
-- Finally, take a look at how the variables are related:
+Finally, take a look at how the variables are related:
 
 ```{r main-plot, message = FALSE, out.width="140%"}
+
+# Calculate the coefficient of determination (R-squared)
+rsq = function (x, y) cor(x, y) ^ 2
+rsq_ = format(round(rsq(full_df$body_mass, full_df$mean_frequency), 2), nsmall = 2) 
 
 # Plot the data
 full_df %>%
@@ -346,44 +349,53 @@ full_df %>%
     segment.alpha	= 0.6,
     fontface = 'italic'
   ) +
-  labs(
-    title = 'Mean frequency vs body mass\n',
-    x = '\nLog body mass (g)',
-    y = 'Frequency (Hz)\n'
+  labs(title = 'Mean frequency vs body mass\n',
+       x = '\nLog body mass (g)',
+       y = 'Frequency (Hz)\n') +
+  annotate(
+    "text",
+    x = 400,
+    y = 7000,
+    label = stringr::str_interp("italic(R) ^ 2 == ${rsq_}"),
+    parse = TRUE
   ) +
   theme(aspect.ratio = 0.6, plot.title = element_text(hjust = 0.5)) +
   bioac_theme()
 
 ```
 
-Discuss!
+> **For Discussion**:<br>
+- Is the hypothesis about body size and vocalisation frequency supported from these data?<br>
+- What key aspect might we need to control for further in a proper analysis?<br>
+- Why have used the logarithm of body mass instead of body mass directly?
 
-![Distribution of peak song frequency across a passerine phylogeny. Source: Mikula et al. 2020](reports/figures/phylogeny.jpg)
+<br>
 
 **Further reading:**
 
-Mikula, P., Valcu, M., Brumm, H., Bulla, M., Forstmeier, W., Petrusková, T., Kempenaers, B. and Albrecht, T. (2021), A global analysis of song frequency in passerines provides no support for the acoustic adaptation hypothesis but suggests a role for sexual selection. Ecology Letters, 24: 477-486. https://doi.org/10.1111/ele.13662
+Mikula, P., Valcu, M., Brumm, H., Bulla, M., Forstmeier, W., Petrusková, T., Kempenaers, B. and Albrecht, T. (2021), A global analysis of song frequency in passerines provides no support for the acoustic adaptation hypothesis but suggests a role for sexual selection. Ecology Letters, 24: 477-486. <https://doi.org/10.1111/ele.13662>
 
-Ryan, M. J., & Brenowitz, E. A. (1985). The Role of Body Size, Phylogeny, and Ambient Noise in the Evolution of Bird Song. The American Naturalist, 126(1), 87–100. https://doi.org/10.1086/284398
+Ryan, M. J., & Brenowitz, E. A. (1985). The Role of Body Size, Phylogeny, and Ambient Noise in the Evolution of Bird Song. The American Naturalist, 126(1), 87--100. <https://doi.org/10.1086/284398>
 
+![Distribution of peak song frequency across a passerine phylogeny. Source: Mikula et al. 2020](reports/figures/phylogeny.jpg)
 
 # Automated bird song analysis
 
-> With thanks to [Marcelo Araya Salas](https://marceloarayasalas.weebly.com/) (author of the warbleR package)
+> With thanks to [Marcelo Araya Salas](https://marceloarayasalas.weebly.com/) (author of the warbleR package).
 
 <br>
 
 While taking manual measurements is a perfectly valid option when dealing with small datasets and simple variables, most problems in ecology and animal behaviour call for more complex descriptions of sound, and involve datasets that are too large to be processed manually. Automated analyses are very useful but can be hard to implement, and are not free from many of the biases that plague manual characterisation of sound. For the third part of today's session we will be exploring a simple case: a comparative analysis of the songs of two related species that are very common in the UK.
 
-Both Great tits and Coal tits have relatively simple songs, most frequently made up of two alternating notes, that are often described to as a ‘tea-cher, tea-cher’ sound. Although Coal tits are smaller than Great tits their songs have largely overlapping frequency ranges, and they can be confused by the untrained ear.
-
+Both Great tits and Coal tits have relatively simple songs, most frequently made up of two alternating notes, that are often described to as a 'tea-cher, tea-cher' sound. Although Coal tits are smaller than Great tits their songs have largely overlapping frequency ranges, and they can be confused by the untrained ear. The aim of this exercise is to ask whether an automated approach will identify objective ways to separate the songs of these two species.
 
 ![Coal tit (left) and Great tit (right). Images by Aviceda and Sue Cro, respectively. Under CC BY-SA 2.0 licence.](reports/figures/tits.jpg)
 
 Let's get to work!
 
-First we need some data: we are going to get a sample of Coal and Great tit recordings from xeno-canto.
-You can read the comments in the code blocks to know what we are doing at each step - don't worry if you don't understand what every bit of code is doing!
+## Downloading and preparing the data
+
+First we need some data: we are going to get a sample of Coal and Great tit recordings from xeno-canto. You can read the comments in the code blocks to know what we are doing at each step - don't worry if you don't understand what every bit of code is doing!
 
 ```{r ingest, message = FALSE}
 
@@ -392,6 +404,9 @@ files_dir = file.path(maindir, "data", "two-species-files")
 
 # let's make use of a few more of your computer's cores to speed things up a bit:
 ncores = parallel::detectCores() - 2
+# NOTE: If you have a windows OS you might get an error related to parallel computing. If this is the case,
+# you can set the `ncores` variable to 1, which will disable parallel computing, by replacing the code line immediately 
+# above with `ncores = 1` and running this code chunk again.
 
 # Set this to your working directory
 # NOTE : changing working directories like this is a bad programming 
@@ -412,18 +427,20 @@ lapply(xc_codes, function(code)
 # + create a list with all the files that we are going to analyse
 
 try(mp32wav()); checkwavs()
-wavs <- list.files(pattern="wav$") 
+wave_files = list.files(pattern="wav$") 
 
 # Downsample the songs to gain some speed
-lapply(wavs, function(x)
-  writeWave(downsample(readWave(x), samp.rate = 22050),
+lapply(wave_files, function(x)
+  writeWave(suppressWarnings(downsample(readWave(x), samp.rate = 22050)),
             filename = x))
 
 ```
 
 Now you can go to `./data/two-species-files`, the directory for this part of the session, and inspect some of the files in Sonic Visualiser. I find that the songs of these two birds look more different than they sound - what do you think?
 
-The basic unit in these songs is a note, which we can define as a sound represented by a continuous trace on the spectrogram, often separated by pauses. We can take advantage of this to try to detect each individual note in our dataset automatically. I have chosen particularly clean audio recordings (i.e. the signal-to-noise ratio is high) and set the parameters of the algorithm for you, so your segmentation should be fairly accurate. In reality, automatic segmentation of sound is a *really* hard problem!
+## Finding notes in the data
+
+The basic unit in these songs is a note, which we can define as each sound represented by a continuous trace on the spectrogram, often delimited by pauses. We can take advantage of this to try to detect each individual note in our dataset automatically. I have chosen particularly clean audio recordings (i.e., the signal-to-noise ratio is high) and set the parameters of the algorithm for you, so your segmentation should be fairly accurate. In reality, automatic segmentation of sound is a *really* hard problem!
 
 ```{r segment, message = FALSE}
 
@@ -458,42 +475,77 @@ write.csv(element_list, "song-segmentation.csv", row.names = FALSE)
 
 If you go to the `segmentation-spectrograms` folder you can check whether the segmentation algorithm did a good job. You now have start and end time information for `r nrow(element_list)` notes!
 
+## Extracting spectral parameters
 
-Now that we have individual notes we can automatically extract some numeric descriptions of their sound. More specifically, we are going to measure 22 spectral parameters [ETC]
+Now that we have individual notes we can automatically extract some numeric descriptions of their sound. More specifically, we are going to measure 22 spectral parameters, such as the duration, mean frequency, standard deviation of the frequency, some measures of complexity, and range of frequencies. You can see a complete list [here](https://www.rdocumentation.org/packages/warbleR/versions/1.1.2/topics/specan).
 
 ```{r spectral-params, message = FALSE}
 
 # Extract some spectral parameters
-spectral_parameters <- specan(element_list, path = files_dir, parallel=ncores, threshold = 15, bp = c(2,9)) %>%
-  mutate(label = str_split(sound.files, "-", simplify = TRUE)[ , 2])
+spectral_parameters =
+  specan(
+    element_list,
+    path = files_dir,
+    parallel = ncores,
+    threshold = 15,
+    bp = c(2, 9)
+  ) %>%
+  mutate(label = str_split(sound.files, "-", simplify = TRUE)[, 2]) 
 ```
 
-Now PCA
+You can run `head(spectral_parameters)` in your R console if you want to take a look at what these parameters look like.
+
+So now we have some variables that describe different characteristics of the notes in our dataset --- what can we do with them?
+
+## Principal component analysis
+
+The first step when dealing with a complex dataset is often to try to reduce its dimensionality. This entails finding a simpler description that captures as much of the variation in the data as possible, ignoring those variables that are correlated between them and, therefore, redundant. There are many methods for dimensionality reduction, the simpler and most common of which is principal component analysis (PCA). [This](https://setosa.io/ev/principal-component-analysis/) is a very neat visual explanation of how PCA works.
 
 ```{r pca, message = FALSE}
 
 # PCA of spectral parameters
-pca <- prcomp(x = spectral_parameters[, sapply(spectral_parameters, is.numeric)], scale. = TRUE)
-pcascor <- as.data.frame(pca[[5]]) %>% tibble::add_column(label = spectral_parameters$label)
-pcascor %>% ggplot(aes(x=PC1, y=PC2, colour=label)) +
-  geom_point(alpha=0.8, shape=16) +
-  scale_colour_manual(values = c('#585955', '#f0b618'), labels = c('Coal tit', 'Great tit')) +
+pca =
+  prcomp(x = spectral_parameters[, sapply(spectral_parameters, is.numeric)],
+         center = TRUE,
+         scale. = TRUE)
+pca_df =
+  as.data.frame(pca[[5]]) %>% tibble::add_column(label = spectral_parameters$label)
+pca_df %>% ggplot(aes(x = PC1, y = PC2, colour = label)) +
+  geom_point(alpha = 0.8, shape = 16) +
+  scale_colour_manual(values = c('#585955', '#f0b618'),
+                      labels = c('Coal tit', 'Great tit')) +
   bioac_theme() +
-  theme(legend.position = "right", aspect.ratio = 0.6, ) +
-  labs(
-      title = 'Principal component analysis',
-      subtitle= 'based on spectral measurements\n'
-    ) 
+  theme(legend.position = "right", aspect.ratio = 0.6,) +
+  labs(title = 'Principal component analysis',
+       subtitle = 'based on spectral measurements\n')
 
 ```
 
-Some separation but lots of overlap - discuss why, shortcomings, level of description
+You have now plotted where each note in the dataset lies in a space defined by the two first principal components. They're coloured by species. You can modify the code above by changing `PC1` and `PC2` in the `ggplot(aes(x=PC1, y=PC2, colour=label))` bit to further principal components (e.g., `PC3`) and see how they capture increasingly fewer variation.
 
-What makes their songs distinct?
+If you navigate to `./reports/figures` and open the `pca-loadings.png` image you can take a look at how each of the 22 variables contribute to the two first principal components, which capture 33% and 25% of the variation in the data, respectively.
+
+<br>
+
+> **Questions**:<br>
+>  - Does this method help us distinguish the notes sung by these two bird species?<br>
+>  - Are our spectral parameters the right ones for the job?<br>
+>  - We have characterised some properties of individual notes; are other levels of description (for example, the way notes are arranged in a sequence) also relevant? How might we study these?
+
+<br>
+
+One of the methodological issues that arises when trying to compare the vocalisations of different species is that the variables that capture the most overall variation in the data might not be particularly relevant when it comes to distinguishing them. Indeed, if you open and visually compare some of the raw song recordings you might notice that, while there is a lot of overlap in the frequencies that they use, the 'shape' of their notes is somewhat different --- and it turns out that most of the parameters that we have measured do not capture this!
+
+> **Q**: What do you think are the main differences between the songs of these two species? Which strategy do you think the birds might employ to tell whether they are listening to a conspecific?
+
+<br>
+
+To really be able to predict if a song was sung by a Coal or a Great tit we would need classification methods that are beyond the scope of this short introduction. It can be done, but it is far from a trivial problem --- as you might have guessed, it involves training an algorithm to distinguish not those acoustic characteristics that explain most variation, but the *right* kind of variation: that which separates the two species in the 'acoustic space'. Before we finish, and based on our discussion, we are going to take a quick look at what some of them might be:
+
 
 ```{r modulation, message = FALSE}
-# Plot measures of modulation
 
+# Plot measures of modulation
 linecolour = adjustcolor("#c4692d", alpha.f = .9)
 dfrange_plot = spectral_parameters %>% ggplot(aes(x = label, y = dfrange)) +
   geom_jitter(width = 0.2,
@@ -527,22 +579,27 @@ kurt_plot = spectral_parameters %>% ggplot(aes(x = label, y = kurt)) +
   scale_x_discrete(labels = c('Coal tit', 'Great tit')) +
   theme(aspect.ratio = 1.3)
 
-dfrange_plot + kurt_plot + plot_annotation(
-  title = 'Measures of frequency modulation\n',
-  caption = '\nHigher kurtosis = more leptokurtic, that is, having a distribution more centered around the mean than a normal distribution',
-  theme = theme(
-    plot.title = element_text(size = 18, hjust = 0.5),
-    plot.caption = element_text(size = 9, hjust = 0.5)
-  )
-)
+dfrange_plot + kurt_plot +
+  plot_annotation(
+    title = 'Measures of frequency modulation\n',
+    caption = '\nHigher kurtosis = more leptokurtic, that is, having a distribution more centered around the mean than a normal distribution.
+Note that these variables correspond to two ways of measuring the same thing and are therefore correlated',
+    theme = theme(
+      plot.title = element_text(size = 18, hjust = 0.5),
+      plot.caption = element_text(size = 9, hjust = 0.5)
+    )
+      )
 ```
 
-Temporal characteristics:
 ```{r pace, message = FALSE}
 
-# Temporal characteristics
-element_list = element_list %>% mutate(label = spectral_parameters$label, duration = end -
-                          start, silence = c(element_list$start[2:nrow(element_list)], NA) -end ) 
+# Temporal characteristics:
+# let's calculate the duration of each note and the length of the silences between them
+element_list = element_list %>% mutate(
+  label = spectral_parameters$label,
+  duration = end - start,
+  silence = c(element_list$start[2:nrow(element_list)], NA) - end
+)
 
 silences_plot = element_list %>% 
   filter(silence >0 & silence <0.2) %>% 
@@ -581,23 +638,25 @@ durations_plot = element_list %>%
 
 
 silences_plot + durations_plot + plot_annotation(
-  title = 'A quick look at silence and note duration\n',
+  title = 'Silence and note duration\n',
   theme = theme(
     plot.title = element_text(size = 18, hjust = 0.5),
     plot.caption = element_text(size = 9, hjust = 0.5)
   )
 )
 
-# setwd(maindir)
 ```
 
+***
 
-Extra code to go further - uncomment to use
+We are done now! Feel free to keep this document and, if this is something you have found interesting, you can recycle and modify the code --- and try to analyse the vocalisations of other species.
 
-```{rn extra, message=FALSE}
+```{rn extra, message=FALSE, include=FALSE}
+
+## Extra code to go further - uncomment to use
 
 # #Extract the dominant frequency of each element, or note
-# dominant_frequencies <-
+# dominant_frequencies =
 #   freq_ts(
 #     path = files_dir,
 #     element_list,
@@ -624,4 +683,4 @@ Extra code to go further - uncomment to use
 
 ```
 
-***
+------------------------------------------------------------------------
