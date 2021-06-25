@@ -1,2 +1,1 @@
-* linguist-vendored
-*.Rmd linguist-vendored=false
+*.html linguist-detectable=false
