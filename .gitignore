@@ -3,17 +3,18 @@
 .RData
 .Ruserdata
 
+full-vignette.html
 /vignette_cache/
 /vignette_files/
 /full-vignette_cache/
 /full-vignette_files/
 /readings/
 
-NILO.txt
 .~*
 data/two-species-files/*.mp3
 data/two-species-files/*.wav
 data/two-species-files/*/*.jpeg
 data/two-species-files/*.jpeg
+data/song-segmentation.csv
 
 *private*
