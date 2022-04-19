@@ -1,8 +1,12 @@
 
-# A short introduction to acoustic analysis
+# A short introduction to bird song and bioacoustics
 
-You can find it [HERE](https://nilomr.github.io/bioacoustics-practical).
+![](https://img.shields.io/badge/-R_Markdown-blue?style=flat&labelColor=white&logo=RStudio&logoColor=blue)
 
-![](reports/figures/wren.gif)
-![](reports/figures/sample-spec.png)
-This guide was prepared as part of a short introductory course on avian behaviour and ecology for 2nd year Biology undergraduate students. 
+![](reports/figures/thresholding.png)
+
+This is a practical exercise prepared as part of a short introductory course on avian behaviour and ecology for 2nd year Biology undergraduate students at the University of Oxford. You can find an html version [here](https://nilomr.github.io/bioacoustics-practical).
+
+***
+Nilo M. Recalde | 2021
+
