@@ -636,19 +636,20 @@ If you navigate to `./reports/figures` and open the `pca-loadings.png` image you
 
 > **Questions**:<br>
 >  - Does this method help us distinguish the notes sung by these two bird species?<br>
->  - Are our spectral parameters the right ones for the job?<br>
+>  - Are our spectral parameters the best suited for the job?<br>
 >  - We have characterised some properties of individual notes; are other levels of description (for example, the way notes are arranged in a sequence) also relevant? How might we study these?
 
 <br>
 
-One of the methodological issues that arises when trying to compare the vocalisations of different species is that the variables that capture the most overall variation in the data might not be particularly relevant when it comes to distinguishing them. Indeed, if you open and visually compare some of the raw song recordings you might notice that, while there is a lot of overlap in the frequencies that they use, the 'shape' of their notes is somewhat different --- and it turns out that most of the parameters that we have measured do not capture this!
+## Species classification
 
-> **Q**: What do you think are the main differences between the songs of these two species? Which strategy do you think the birds might employ to tell whether they are listening to a conspecific?
+One of the methodological issues that arises when trying to compare the vocalisations of different species is that the variables that capture the most overall variation in the data might not be particularly relevant when it comes to distinguishing them. If you open and compare some of the raw song recordings visually you might notice that, while there is a lot of overlap in the frequencies that they use, the 'shape' of their notes is somewhat different. As it turns out, most of the parameters that we have measured do not capture this!
+
+> **Q**: What do you think are the main differences between the songs of these two species? Which strategies do you think the birds might employ to tell whether they are listening to a conspecific?
 
 <br>
 
-To really be able to predict if a song was sung by a Coal or a Great tit we would need classification methods that are beyond the scope of this short introduction. It can be done, but it is far from a trivial problem --- as you might have guessed, it involves 'training' an algorithm to distinguish not those acoustic characteristics that explain most variation, but the *right kind* of variation: that which separates the two species in the 'acoustic space'. Before we finish, and based on our discussion, we are going to take a quick look at what some of them might be:
-
+To actually be able to predict if a song was sung by a Coal or a Great tit we would need to train an algorithm to distinguish not those acoustic characteristics that explain most variation, but the *right kind* of variation: that which separates the two species in the 'acoustic space'. Before we do that, let's plot and discuss a couple of raw variables:
 
 ```{r modulation, message = FALSE}
 
@@ -773,8 +774,12 @@ silences_plot + durations_plot + plot_annotation(
 
 ***
 
-Before we finish, let's use a slightly more sophisticated method, called a Random Forest classifier, to see if we can indeed predict which species a given note belongs to using the features that we have extracted.
-```{r rf, message = FALSE}
+
+### Training a classification algorithm
+
+We will now train a relatively simple machine learning algorithm called a Random Forest to see if we can predict which species sung any given note in our dataset --- using the same features that we extracted earlier.
+
+```{r rf-train, message = FALSE}
 
 # Prepare the data
 # (remove non-numerical columns, convert species label to a factor)
@@ -803,6 +808,11 @@ rf_classifier <- randomForest(
 
 # Predicting species on the validation set
 predValid <- predict(rf_classifier, ValidSet, type = "class")
+```
+
+The last step will be to evaluate the model we just trained:
+
+```{r rf-eval, message = FALSE}
 
 # Evaluate the model
 acc <- format(round(mean(predValid == ValidSet$label), 2), nsmall = 2)
@@ -821,6 +831,15 @@ evaluate <- function(actuals, predictions) {
 }
 
 evaluate(ValidSet$label, predValid)
+```
+
+What can you say about the model's performance?
+To help visualise it we can plot a confusion matrix, where you can see the number of true positives and negatives for each species when we tested our model on the data we hid from it during training:
+
+> **Question**:<br>
+>  - Why can't we just train the algorithm using all available data?<br>
+
+```{r rf-confusion-matrix, message = FALSE}
 
 # Plot confusion matrix
 autoplot(conf_mat(table(predValid, ValidSet$label)), type = "heatmap") +
@@ -833,10 +852,11 @@ autoplot(conf_mat(table(predValid, ValidSet$label)), type = "heatmap") +
     title = "RF Confusion Matrix",
     subtitle = paste0("Accuracy: ", acc, "%")
   )
+```
 
-# And last, let's check which variables contribute the most to the prediction:
-varImpPlot(rf_classifier)
+Now let's plot where each note lies in the similarity space defined by our model:
 
+```{r rf-plot-mds, message = FALSE}
 
 # What does this look like if we plot it?
 dist_matrix <- as.dist(1 - rf_classifier$proximity)
@@ -865,6 +885,13 @@ ggplot(data = mds_data, aes(x = X, y = Y, color = species)) +
     title = "MDS plot",
     subtitle = "(1 - RF distances)\n"
   )
+```
+
+And finally, let's check which variables contribute the most to the prediction:
+
+```{r rf-variable-contribution, message = FALSE}
+
+varImpPlot(rf_classifier)
 ```
 
 We are done now! Feel free to keep this document and, if this is something you have found interesting, you can reuse and modify the code however you wish --- maybe try to analyse the vocalisations of your favourite species.
