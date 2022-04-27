@@ -31,7 +31,6 @@ tutor <- TRUE
 1. This guide has a number of direct hyperlinks: I recommend that you right-click and open them in new browser tabs. <br>
 2. You will need \~ 3gb of free disk space for this activity. I recommend that you close any running software other than Rstudio, as well as any unused browser tabs, before you start running code.<br>
 3. The output figures are not included in this document - you will have to generate them!
-4. Some bits of code are slightly long - you can hide all code 
 
 # Prerequisites
 
