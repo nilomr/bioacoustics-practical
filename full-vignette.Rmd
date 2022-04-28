@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
   echo = TRUE, eval = TRUE, cache = TRUE,
   results = "hide", fig.keep = "none"
 )
-tutor <- TRUE
+tutor <- FALSE
 ```
 
 --------------------------------------------------------------------------------
