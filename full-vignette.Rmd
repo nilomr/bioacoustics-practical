@@ -540,8 +540,11 @@ element_list <- auto_detec(
 
 # Let's export the segmented spectrograms and take a look at them:
 dir.create(file.path(files_dir, "spectrograms"))
+
 full_spectrograms(
-  element_list,
+  element_list[element_list$sound.files == element_list[
+    !duplicated(element_list$sound.files),
+  ][1, 1], ],
   parallel = 1,
   fast.spec = TRUE, suffix = "seg", path = files_dir,
   dest.path = file.path(files_dir, "spectrograms")
