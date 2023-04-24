@@ -107,7 +107,7 @@ These audio files are sample vocalisations for 15 bird species across a wide
 body mass range --- from the Goldcrest's 5.8 grams of sheer adorableness to the
 much graver looking Rook, over 70 times larger.
 
-![Rook picture (right) by hedera.baltica, Goldcrest (left) by Cliff Watkinson. 
+![Rook picture (left) by hedera.baltica, Goldcrest (right) by Cliff Watkinson.
 Both CC BY-SA 2.0](reports/figures/sample-passerines.jpg)
 
 During this activity you will:
