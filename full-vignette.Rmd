@@ -486,7 +486,7 @@ invisible(pblapply(xc_codes, download_xc, dir = files_dir))
 # + check that the newly created wav files can be read
 # + create a list with all the files that we are going to analyse
 
-try(mp32wav(parallel = ncores, path = files_dir))
+try(mp32wav(parallel = ncores, path = files_dir, dest.path = files_dir))
 wave_files <- list.files(path = files_dir, pattern = ".wav$")
 
 # Downsample the audio files to gain some speed
