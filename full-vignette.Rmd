@@ -430,13 +430,13 @@ Mikula et al. 2020](reports/figures/phylogeny.jpg)
 
 <br>
 
-While taking manual measurements is a reasonable option when dealing with
+While taking manual measurements is a reasonable option when dealing with small
 datasets and simple variables, most problems in ecology and animal behaviour
-behaviour call for more complex descriptions of sound, and involve datasets that
-are too large to be processed manually. Automated analyses are very useful but
-can be hard to implement, and are not free from many of the biases that plague
-manual characterisation of sound. For the third part of today's session we will
-be exploring a simple case: a comparative analysis of the songs of two related
+call for more complex descriptions of sound, and involve datasets that are too
+large to be processed manually. Automated analyses are very useful but can be
+hard to implement, and are not free from many of the biases that plague manual
+characterisation of sound. For the third part of today's session we will be
+exploring a simple case: a comparative analysis of the songs of two related
 species that are very common in the UK.
 
 Both Great tits and Coal tits have relatively simple songs, most frequently made
