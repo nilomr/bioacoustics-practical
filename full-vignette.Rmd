@@ -431,7 +431,7 @@ Mikula et al. 2020](reports/figures/phylogeny.jpg)
 <br>
 
 While taking manual measurements is a reasonable option when dealing with
-small datasets and simple variables, most problems in ecology and animal
+datasets and simple variables, most problems in ecology and animal behaviour
 behaviour call for more complex descriptions of sound, and involve datasets that
 are too large to be processed manually. Automated analyses are very useful but
 can be hard to implement, and are not free from many of the biases that plague
